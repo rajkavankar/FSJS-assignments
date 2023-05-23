@@ -1,0 +1,13 @@
+ POST http://localhost:5000/api/posts
+Content-Type: application/json
+
+{"title":"first post", "body":"This is my first post"}
+
+###
+ PUT http://localhost:5000/api/posts/646c6c8e12b7bb5f6b665412
+Content-Type: application/json
+
+{"title":"first post", "body":"This is my updated first post"}
+
+###
+DELETE http://localhost:5000/api/posts/646c6c8e12b7bb5f6b665412
