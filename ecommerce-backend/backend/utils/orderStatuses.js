@@ -1,0 +1,6 @@
+export const orderStatuses = {
+  ORDERED: "ORDERED",
+  SHIPPED: "SHIPPED",
+  DELIVERED: "DELIVERED",
+  CANCELLED: "CANCELLED",
+}
