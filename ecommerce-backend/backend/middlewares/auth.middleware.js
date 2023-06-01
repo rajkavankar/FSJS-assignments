@@ -20,10 +20,12 @@ export const isLoggedin = asyncHandler(async (req, res, next) => {
   }
 
   try {
+    console.log(token, typeof token)
     const decoded = jwt.verify(token, config.JWT_SECRET)
     req.user = await User.findById(decoded._id, "name email role")
     next()
   } catch (error) {
+    console.log(error)
     throw new CustomError("Not authorized", 401)
   }
 })

@@ -48,7 +48,7 @@ userSchema.methods = {
   validatePassword: async function (userPassword) {
     return await bcrypt.compare(userPassword, this.password)
   },
-  generateJwtToken: async function () {
+  generateJwtToken: function () {
     return jwt.sign({ _id: this._id, role: this.role }, config.JWT_SECRET, {
       expiresIn: config.JWT_EXPIRY,
     })

@@ -1,4 +1,4 @@
-import asyncHandler from "../utils/asyncHandler.js"
+import { asyncHandler } from "../utils/asyncHandler.js"
 import CustomError from "../utils/CustomError.js"
 import User from "../models/user.schema.js"
 import { config } from "../config/config.js"
@@ -56,6 +56,10 @@ const signup = asyncHandler(async (req, res) => {
 const signin = asyncHandler(async (req, res) => {
   const { email, password } = req.body
 
+  if (!email || !password) {
+    throw new CustomError("Please provide all fields", 400)
+  }
+
   const user = await User.findOne({ email }).select("+password")
 
   if (!user) {
@@ -66,7 +70,7 @@ const signin = asyncHandler(async (req, res) => {
 
   if (isValidUser) {
     user.password = undefined
-    const token = user.generateJwtToken()
+    const token = await user.generateJwtToken()
     res.cookie("token", token, cookieOptions)
     return res.status(200).json({
       success: true,
