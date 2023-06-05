@@ -12,4 +12,8 @@ export const config = {
   S3_REGION: process.env.S3_REGION,
   S3_ACCESS_KEY: process.env.S3_ACCESS_KEY,
   S3_SECRET_KEY: process.env.S3_SECRET_KEY,
+  SMTP_MAIL_HOST: process.env.SMTP_MAIL_HOST,
+  SMTP_MAIL_PORT: process.env.SMTP_MAIL_PORT,
+  SMTP_MAIL_USER: process.env.SMTP_MAIL_USER,
+  SMPT_MAIL_PASSWORD: process.env.SMPT_MAIL_PASSWORD,
 }

@@ -2,6 +2,7 @@ import { asyncHandler } from "../utils/asyncHandler.js"
 import CustomError from "../utils/CustomError.js"
 import User from "../models/user.schema.js"
 import { config } from "../config/config.js"
+import { mailHelper } from "../utils/mailHelper.js"
 
 const cookieOptions = {
   httpOnly: true,
@@ -119,4 +120,77 @@ const getProfile = asyncHandler(async (req, res) => {
   })
 })
 
-export { signup, signin, signout, getProfile }
+/******************************************************
+ * @FORGOT_PASSOWRD
+ * @METHOD POST
+ * @route http://localhost:5000/api/auth/forgotpassword
+ * @description User forgot password controller to send reset url in email
+ * @returns Success message
+ ******************************************************/
+const forgotPassword = asyncHandler(async (req, res) => {
+  const { email } = req.body
+
+  if (!email) {
+    throw new CustomError("Email is required", 400)
+  }
+
+  const user = await User.findOne({ email })
+
+  if (!user) {
+    throw new CustomError("Email is not registerd", 400)
+  }
+
+  const forgotToken = user.generateForgotToken()
+
+  await user.save({ validateBeforeSave: false })
+
+  const url = `${req.protocol}://${req.get("host")}/auth/reset/${forgotToken}`
+
+  const message = `Reset Url \n\n ${url}`
+
+  try {
+    await mailHelper({
+      email,
+      subject: "Password reset ",
+      message,
+    })
+  } catch (error) {
+    user.forgotPasswordToken = undefined
+    user.forgotPasswordExpiry = undefined
+    user.save({ validateBeforeSave: false })
+    throw new CustomError(error.message || "Something went wrong", 500)
+  }
+})
+
+/******************************************************
+ * @RESET_PASSOWRD
+ * @METHOD POST
+ * @route http://localhost:5000/api/auth/reset/:token
+ * @description User forgot password controller to send reset url in email
+ * @returns Success message
+ ******************************************************/
+const resetPassword = asyncHandler(async (req, res) => {
+  const { token } = req.params
+  const { password } = req.body
+
+  const user = await User.find({
+    forgotPasswordToken: token,
+    forgotPasswordExpiry: { $gt: Date.now() },
+  })
+
+  if (!user) {
+    throw new CustomError("User not found", 404)
+  }
+
+  user.password = password
+  user.forgotPasswordToken = undefined
+  user.forgotPasswordExpiry = undefined
+  user.save()
+
+  res.status(200).json({
+    success: true,
+    user,
+  })
+})
+
+export { signup, signin, signout, getProfile, forgotPassword, resetPassword }
